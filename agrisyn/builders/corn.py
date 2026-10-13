@@ -1,11 +1,12 @@
 import random
 
+from .. import config
 from .plant import PlantBuilder
 
 
 class CornBuilder(PlantBuilder):
-    cross_spacing_range = (0.0002, 0.0020)
-    leaf_jitter_range = (-0.0003, 0.0003)
+    cross_spacing_range = (0.0002 * config.REAL_SCALE, 0.0020 * config.REAL_SCALE)
+    leaf_jitter_range = (-0.0003 * config.REAL_SCALE, 0.0003 * config.REAL_SCALE)
 
     def __init__(self):
         super().__init__("corn")

@@ -12,9 +12,10 @@ class GroundBuilder(Builder):
     """Builds the ground by duplicating one of the reference planes of the "ground" collection.
 
     The plane in the .blend is ready to use (material, displacement modifier,
-    dimensions). It is copied, placed at the origin and randomised: free rotation
-    around Z and uniform scale in X/Y (Z stays 1 to preserve the relief height).
-    The scale starts at the minimum that keeps the whole camera footprint inside
+    dimensions, real-size scale). It is copied, placed at the origin and
+    randomised: free rotation around Z and a uniform multiplier of its X/Y scale
+    (Z keeps the library scale, which preserves the relief height). The
+    multiplier starts at the minimum that keeps the whole camera footprint inside
     the rotated plane, so no rotation ever exposes the scene background.
     """
 
@@ -51,7 +52,7 @@ class GroundBuilder(Builder):
 
         plane.location = (0.0, 0.0, 0.0)
         plane.rotation_euler = (0.0, 0.0, angle)
-        plane.scale = (scale, scale, 1.0)
+        plane.scale = (source.scale.x * scale, source.scale.y * scale, source.scale.z)
         bpy.context.view_layer.update()
 
     def _source_plane(self):
@@ -63,7 +64,7 @@ class GroundBuilder(Builder):
             )
         return source
 
-    def height_at(self, x: float, y: float, radius: float = 0.02) -> float:
+    def height_at(self, x: float, y: float, radius: float = 0.02 * config.REAL_SCALE) -> float:
         """Height (z, metres) of the top of the ground around (x, y).
 
         Casts rays downwards onto the evaluated mesh (modifiers applied) at the

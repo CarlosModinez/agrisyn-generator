@@ -16,7 +16,7 @@ materials to get the mask.
 |---|---|
 | ![Composed scene, EEVEE preview](docs/img/scene_eevee.jpg) | ![Composed scene, Cycles](docs/img/scene_cycles.jpg) |
 
-The red frame on the ground is the area seen by the nadir camera (13.3 × 9.5 cm).
+The red frame on the ground is the area seen by the nadir camera (64.8 × 46.3 cm).
 
 The published dataset is on Zenodo: **AgriSyn** (DOI `10.5281/zenodo.XXXXXXX`), 12,000 images
 in three variants (10, 30 and 50 leaf models per species). This repository is the code that
@@ -36,8 +36,9 @@ generated it, and it reproduces the published images exactly with the default se
 3. **Light.** A sun lamp with random energy (3-6), angular size, inclination (45-75° from the
    zenith) and azimuth, under a Nishita sky with random sun elevation (35-65°) and strength
    (0.2-0.5).
-4. **Camera.** Nadir camera 18.5 cm above the ground, 50 mm lens on a 36 mm sensor,
-   1600 × 1144 px. The scene is a ~1:4.8 scale model of the WE3DS acquisition geometry.
+4. **Camera.** Nadir camera 90 cm above the ground, 50 mm lens on a 36 mm sensor,
+   1600 × 1144 px, seeing 64.8 × 46.3 cm of ground: the acquisition geometry of WE3DS
+   (0.4 mm per pixel). The whole scene is at real scale, in metres.
 5. **Render.** Cycles, 64 samples, AgX view transform, no denoising. The mask is a second
    render with white emission on plants and black on the ground, thresholded to a binary PNG.
 
@@ -158,8 +159,11 @@ for n in 10 30 50; do
 done
 ```
 
-Rendering 12,000 images takes about 12 hours on an Apple M-series GPU. The published files
-are named `<id>_0.png` (a legacy camera suffix); this version of the generator writes `<id>.png`.
+Rendering 12,000 images takes about 12 hours on an Apple M-series GPU. Two cosmetic
+differences from the published files: they are named `<id>_0.png` (a legacy camera suffix,
+this version writes `<id>.png`), and their metadata lists `camera_height` 0.185, because the
+dataset was rendered before the library was scaled to real size (the scenes are exact scaled
+copies, so the images are the same).
 
 ## Output format
 
@@ -176,7 +180,7 @@ are named `<id>_0.png` (a legacy camera suffix); this version of the generator w
 | `plant_area_px`, `background_area_px` | pixel counts in the mask |
 | `image_width`, `image_height` | 1600, 1144 |
 | `soil_material` | name of the soil plane used |
-| `camera_height`, `camera_x`, `camera_y` | camera position in metres (0.185, 0, 0) |
+| `camera_height`, `camera_x`, `camera_y` | camera position in metres (0.90, 0, 0) |
 | `sun_tilt_deg`, `sun_azimuth_deg`, `sun_energy` | sun lamp parameters |
 | `render_time_s` | render time of the RGB image |
 | `seed` | effective seed of the scene (`--seed` + id) |

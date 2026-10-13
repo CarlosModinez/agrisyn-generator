@@ -25,13 +25,21 @@ SOIL_MATERIALS = [
     "sandy_gravel_02_diff_4k",
 ]
 
+# --- Scale -------------------------------------------------------------------
+
+# The leaf and ground libraries were modelled at 1:4.865 (camera at 18.5 cm) and
+# later scaled up to real size in the .blend. Every absolute length of the
+# composition (camera height, cross spacing, jitter, ray-cast radius) carries the
+# same factor, so the scenes are exact scaled copies of the original ones.
+REAL_SCALE = 90.0 / 18.5
+
 # --- Camera ------------------------------------------------------------------
 
-# Nadir camera. The footprint on the ground follows from the optics:
-# width = height * sensor / lens (13.3 x 9.5 cm). The scene is a ~1:4.8 scale
-# model of the WE3DS acquisition geometry (camera ~90 cm above the ground).
+# Nadir camera at real scale, as in the WE3DS acquisition: 90 cm above the
+# ground, 50 mm lens on a 36 mm sensor. The footprint follows from the optics:
+# width = height * sensor / lens = 64.8 x 46.3 cm.
 CAMERA = {
-    "height": 0.185,        # metres above the ground
+    "height": 0.185 * REAL_SCALE,  # 0.90 m above the ground
     "lens_mm": 50.0,
     "sensor_mm": 36.0,
     "resolution_x": 1600,

@@ -25,12 +25,13 @@ class PlantBuilder(Builder):
 
     role = "plant"
 
-    base_z = 0.0                               # the first cross touches the ground
-    cross_spacing_range = (0.0010, 0.0018)     # vertical spacing between crosses (m)
-    leaf_jitter_range = (-0.0003, 0.0004)      # per-leaf vertical jitter inside a cross (m)
-    min_z = 0.0                                # no leaf below the ground
-    tilt_variation = 0.08                      # random tilt variation per leaf (rad)
-    tilt_step_deg = 5.0                        # tilt increment per cross (degrees)
+    # Lengths are in metres at real scale (see config.REAL_SCALE).
+    base_z = 0.0                                                      # the first cross touches the ground
+    cross_spacing_range = (0.0010 * config.REAL_SCALE, 0.0018 * config.REAL_SCALE)  # between crosses
+    leaf_jitter_range = (-0.0003 * config.REAL_SCALE, 0.0004 * config.REAL_SCALE)   # per leaf, inside a cross
+    min_z = 0.0                                                       # no leaf below the ground
+    tilt_variation = 0.08                                             # random tilt variation per leaf (rad)
+    tilt_step_deg = 5.0                                               # tilt increment per cross (degrees)
 
     def __init__(self, species: str):
         self.species = species

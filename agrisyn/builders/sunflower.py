@@ -8,8 +8,8 @@ class SunflowerBuilder(PlantBuilder):
     """The only species with size categories: the crosses built first (top) use
     small/medium leaves and the last ones (bottom) use the big leaves."""
 
-    cross_spacing_range = (0.0012, 0.0022)
-    leaf_jitter_range = (-0.0004, 0.0006)
+    cross_spacing_range = (0.0012 * config.REAL_SCALE, 0.0022 * config.REAL_SCALE)
+    leaf_jitter_range = (-0.0004 * config.REAL_SCALE, 0.0006 * config.REAL_SCALE)
 
     def __init__(self):
         super().__init__("sunflower")
