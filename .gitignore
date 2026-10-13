@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.DS_Store
+
+# Outputs
+renders/
+scenes/
+
+# Blender project (1.3 GB): kept out of git unless you track it with git-lfs
+*.blend
+*.blend1
