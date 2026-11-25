@@ -12,13 +12,15 @@ materials to get the mask.
 
 ![Generated images (top) and their binary masks (bottom) for the four species](docs/img/samples.jpg)
 
-| Composed scene as seen in Blender (EEVEE material preview) | The same scene rendered with Cycles |
-|---|---|
+
+| Composed scene as seen in Blender (EEVEE material preview) | The same scene rendered with Cycles                  |
+| ---------------------------------------------------------- | ---------------------------------------------------- |
 | ![Composed scene, EEVEE preview](docs/img/scene_eevee.jpg) | ![Composed scene, Cycles](docs/img/scene_cycles.jpg) |
 
 The red frame on the ground is the area seen by the nadir camera (64.8 × 46.3 cm).
 
-The published dataset is on Zenodo: **AgriSyn** (DOI `10.5281/zenodo.XXXXXXX`), 12,000 images
+The published dataset is on Zenodo: **AgriSyn**
+([doi:10.5281/zenodo.23752147](https://doi.org/10.5281/zenodo.23752147)), 12,000 images
 in three variants (10, 30 and 50 leaf models per species). This repository is the code that
 generated it, and it reproduces the published images exactly with the default seed.
 
@@ -77,18 +79,31 @@ rebuilt on its own.
 
 `blender/agrisyn.blend` holds everything the generator copies from:
 
-| Collection | Content |
-|---|---|
-| `ground` | 10 soil planes, one per texture, with material and displacement already set |
-| `sunflower` | 50 leaf models: `sunflower_big_01..12`, `sunflower_medium_01..18`, `sunflower_small_01..20` |
-| `corn` | `corn_1..49` |
-| `milk_thistle` | `milk_thistle_000..049` |
-| `common_buckwheat` | `common_buckwheat_000..049` |
 
-All textures are packed inside the file, so it is self-contained. Because of its size it is
-ignored by git (`.gitignore`); download it from the Zenodo record and place it at
-`blender/agrisyn.blend`, or track it with [Git LFS](https://git-lfs.com/) if you fork the
-repository.
+| Collection         | Content                                                                                    |
+| ------------------ | ------------------------------------------------------------------------------------------ |
+| `ground`           | 10 soil planes, one per texture, with material and displacement already set                |
+| `sunflower`        | 50 leaf models:`sunflower_big_01..12`, `sunflower_medium_01..18`, `sunflower_small_01..20` |
+| `corn`             | `corn_1..49`                                                                               |
+| `milk_thistle`     | `milk_thistle_000..049`                                                                    |
+| `common_buckwheat` | `common_buckwheat_000..049`                                                                |
+
+All textures are packed inside the file, so it is self-contained. Because of its size (GitHub
+does not accept files larger than 100 MB in a repository) it is ignored by git (`.gitignore`)
+and is distributed as an asset of the
+[`v1.0` release](https://github.com/CarlosModinez/agrisyn-generator/releases/tag/v1.0) of
+this repository. Download `agrisyn.blend` from the release page and place it at
+`blender/agrisyn.blend`, or from the command line:
+
+```bash
+mkdir -p blender
+curl -L -o blender/agrisyn.blend \
+  https://github.com/CarlosModinez/agrisyn-generator/releases/download/v1.0/agrisyn.blend
+shasum -a 256 blender/agrisyn.blend
+# 51f88374fa9298333b24edf7a025183d4023a47b3128880a587050332a3e2baa
+```
+
+The file is not part of the Zenodo record, which holds only the rendered dataset.
 
 ## Step by step
 
@@ -140,13 +155,14 @@ the saved scene carries everything.
 
 ### Options
 
-| Option | Default | Description |
-|---|---|---|
-| `--leaf-count N` | 50 | use only the first N leaf models of each species (1-50); output goes to `renders_N/` |
-| `--species ...` | all | one or more of `sunflower`, `corn`, `milk_thistle`, `common_buckwheat` |
-| `--range-start I`, `--range-end J` | 0, 1000 | scene ids to build, `I <= id < J`; the id names the files and selects the soil texture |
-| `--seed S` | 42 | base seed; scene `id` uses `S + id` |
-| `--output-dir` | `renders/` or `scenes/` | output root |
+
+| Option                             | Default                 | Description                                                                           |
+| ---------------------------------- | ----------------------- | ------------------------------------------------------------------------------------- |
+| `--leaf-count N`                   | 50                      | use only the first N leaf models of each species (1-50); output goes to`renders_N/`   |
+| `--species ...`                    | all                     | one or more of`sunflower`, `corn`, `milk_thistle`, `common_buckwheat`                 |
+| `--range-start I`, `--range-end J` | 0, 1000                 | scene ids to build,`I <= id < J`; the id names the files and selects the soil texture |
+| `--seed S`                         | 42                      | base seed; scene`id` uses `S + id`                                                    |
+| `--output-dir`                     | `renders/` or `scenes/` | output root                                                                           |
 
 ### Reproducing AgriSyn
 
@@ -159,11 +175,11 @@ for n in 10 30 50; do
 done
 ```
 
-Rendering 12,000 images takes about 12 hours on an Apple M-series GPU. Two cosmetic
-differences from the published files: they are named `<id>_0.png` (a legacy camera suffix,
-this version writes `<id>.png`), and their metadata lists `camera_height` 0.185, because the
-dataset was rendered before the library was scaled to real size (the scenes are exact scaled
-copies, so the images are the same).
+Rendering 12,000 images takes about 12 hours on an Apple M-series GPU. One cosmetic
+difference from the published files: they are named `<id>_0.png` (a legacy camera suffix,
+this version writes `<id>.png`). In the published dataset, 278 scenes (2.3%) whose plants had
+ended up hidden in the soil relief were re-rendered with other seeds (the `seed` column of their
+metadata rows gives the seed actually used); every other scene is reproduced by the command above.
 
 ## Output format
 
@@ -172,19 +188,20 @@ copies, so the images are the same).
   Every image contains a single species, given by its folder.
 - **`metadata.csv`** (one per species folder, one row per image):
 
-| Column | Description |
-|---|---|
-| `image` | file name, identical in `images/` and `masks/` |
-| `species` | species of the scene |
-| `n_plants` | number of plants placed in the scene |
-| `plant_area_px`, `background_area_px` | pixel counts in the mask |
-| `image_width`, `image_height` | 1600, 1144 |
-| `soil_material` | name of the soil plane used |
-| `camera_height`, `camera_x`, `camera_y` | camera position in metres (0.90, 0, 0) |
-| `sun_tilt_deg`, `sun_azimuth_deg`, `sun_energy` | sun lamp parameters |
-| `render_time_s` | render time of the RGB image |
-| `seed` | effective seed of the scene (`--seed` + id) |
-| `plant_scales` | per-plant scale factors, `;`-separated |
+
+| Column                                          | Description                                                                                                 |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `image`                                         | file name, identical in`images/` and `masks/`                                                               |
+| `species`                                       | species of the scene                                                                                        |
+| `n_plants`                                      | number of plants placed in the scene                                                                        |
+| `plant_area_px`, `background_area_px`           | pixel counts in the mask                                                                                    |
+| `image_width`, `image_height`                   | 1600, 1144                                                                                                  |
+| `soil_material`                                 | name of the soil plane used                                                                                 |
+| `camera_x`, `camera_y`                          | camera position in the scene, in metres (always 0, 0: the camera is centred; its height is fixed at 0.90 m) |
+| `sun_tilt_deg`, `sun_azimuth_deg`, `sun_energy` | sun lamp parameters                                                                                         |
+| `render_time_s`                                 | render time of the RGB image                                                                                |
+| `seed`                                          | effective seed of the scene (`--seed` + id)                                                                 |
+| `plant_scales`                                  | per-plant scale factors,`;`-separated                                                                       |
 
 ## Configuration
 
@@ -205,13 +222,16 @@ To add a species: put its leaf models in a collection named after it in the libr
 ## Citation
 
 If you use the generator or the dataset, please cite the AgriSyn Zenodo record
-(DOI `10.5281/zenodo.XXXXXXX`) and the accompanying paper.
+([doi:10.5281/zenodo.23752147](https://doi.org/10.5281/zenodo.23752147)) and the accompanying
+paper.
 
-The real reference data is WE3DS: Kitzler, F., Wagentristl, H., Neugschwandtner, R. W.,
+The real reference data is WE3DS: Kitzler, F., Barta, N., Neugschwandtner, R. W.,
 Gronauer, A., & Motsch, V. (2023). *WE3DS: An RGB-D image dataset for semantic segmentation in
-agriculture*. Sensors, 23(5), 2713.
+agriculture*. Sensors, 23(5), 2713. [https://doi.org/10.3390/s23052713](https://doi.org/10.3390/s23052713)
 
 ## License
 
-The dataset is released under CC BY 4.0. Soil textures come from [Poly Haven](https://polyhaven.com/)
-(CC0). <!-- TODO: choose a license for the code (e.g. MIT) and add a LICENSE file. -->
+The dataset is released under CC BY 4.0. The library `agrisyn.blend` contains third-party
+material: the leaf textures were cropped from photographs of the WE3DS dataset
+([doi:10.5281/zenodo.7457983](https://doi.org/10.5281/zenodo.7457983), CC BY 4.0), and the soil
+textures come from [Poly Haven](https://polyhaven.com/) (CC0). <!-- TODO: choose a license for the code (e.g. MIT) and add a LICENSE file. -->
